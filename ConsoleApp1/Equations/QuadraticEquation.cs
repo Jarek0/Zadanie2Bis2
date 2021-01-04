@@ -7,46 +7,44 @@ namespace ConsoleApp1.Equations
     {
 
         private double _a;
-        public double A
-        {
-            get { return _a; }
-            private set
-            {
-                IParameterValidator aParameterValidator = new NonZeroValidator();
-                if (!aParameterValidator.IsValid(value))
-                {
-                    throw new ArgumentException("Współczynnik a nie może być równy 0. Podaj go ponownie.");
-                }
-                _a = value;
-        } }
-        public double B { get; private set; }
-        public double C { get; private set; }
-        public Delta Delta => new Delta(this);
-
-        public IQuadraticEquationSolution Solution => QuadraticEquationSolver.Solve(this, this.Delta);
-
+        private double _b;
+        private double _c;
+        
         private QuadraticEquation(double a, double b, double c)
         {
-            A = a;
-            B = b;
-            C = c;
+            _a = a;
+            _b = b;
+            _c = c;
         }
         
         private QuadraticEquation()
         {
             _a = 0;
-            B = 0;
-            C = 0;
+            _b = 0;
+            _c = 0;
+        }
+        
+        public IQuadraticEquationSolution FindSolutionsInRealNumbers(Delta delta)
+        {
+            return QuadraticEquationSolver.Solve(this, delta);
         }
         
         public override string ToString()
         {
-            return $"({A}*x^2) + ({B}*x) + ({C}) = 0";
+            return $"({_a}*x^2) + ({_b}*x) + ({_c}) = 0";
         }
+
+        public double A => _a;
+
+        public double B => _b;
+        
+        public double C => _c;
+        
         public class QuadraticEquationAssembler
         {
 
             private readonly IEquationParameterProvider _parameterProvider;
+            private readonly IParameterValidator _aParameterValidator = new NonZeroValidator();
             private const string ParametrizedConstructor = "a";
             private const string NotParametrizedConstructor = "b";
 
@@ -57,20 +55,6 @@ namespace ConsoleApp1.Equations
 
             public QuadraticEquation Assemble()
             {
-                var wayOfCreation = WayOfCreationQuadraticEquation();
-                if (wayOfCreation != null && wayOfCreation.Equals(ParametrizedConstructor))
-                {
-                    return AssembleUsingParamConstructor();
-                }
-                if (wayOfCreation != null && wayOfCreation.Equals(NotParametrizedConstructor))
-                {
-                    return AssembleUsingNotParamConstructor();
-                }
-                throw new Exception("Nieprawidłowy wartość określająca sposób tworzenia równania kwadratowego");
-            }
-
-            private static string WayOfCreationQuadraticEquation()
-            {
                 for (;;)
                 {
                     try
@@ -78,9 +62,13 @@ namespace ConsoleApp1.Equations
                         Console.WriteLine("Wpisz a żeby stworzyć równanie poprzez konstruktor z parametrami");
                         Console.WriteLine("Wpisz b żeby stworzyć równanie poprzez konstruktor z parametrami");
                         string userInput = Console.ReadLine();
-                        if (userInput.Equals(ParametrizedConstructor) || userInput.Equals(NotParametrizedConstructor))
+                        if (userInput != null && userInput.Equals(ParametrizedConstructor))
                         {
-                            return userInput;
+                            return AssembleUsingParamConstructor();
+                        }
+                        if (userInput != null && userInput.Equals(NotParametrizedConstructor))
+                        {
+                            return AssembleUsingNotParamConstructor();
                         }
                         throw new Exception("Nieprawidłowy wartość określająca sposób tworzenia równania kwadratowego");
                     }
@@ -91,19 +79,28 @@ namespace ConsoleApp1.Equations
                 }
             }
             
-            private QuadraticEquation AssembleUsingParamConstructor()
+            public QuadraticEquation AssembleUsingParamConstructor()
             {
                 var a = _parameterProvider.Provide("a");
+                if (!_aParameterValidator.IsValid(a))
+                {
+                    throw new ArgumentException("Współczynnik a nie może być równy 0. Podaj go ponownie.");
+                }
                 var b = _parameterProvider.Provide("b");
                 var c = _parameterProvider.Provide("c");
                 return new QuadraticEquation(a, b, c);
             }
             
-            private QuadraticEquation AssembleUsingNotParamConstructor()
+            public QuadraticEquation AssembleUsingNotParamConstructor()
             {
+                var a = _parameterProvider.Provide("a");
+                if (!_aParameterValidator.IsValid(a))
+                {
+                    throw new ArgumentException("Współczynnik a nie może być równy 0. Podaj go ponownie.");
+                }
                 var equation = new QuadraticEquation
                 {
-                    A = _parameterProvider.Provide("a"), B = _parameterProvider.Provide("b"), C = _parameterProvider.Provide("c")
+                    _a = a, _b = _parameterProvider.Provide("b"), _c = _parameterProvider.Provide("c")
                 };
                 return equation;
             }

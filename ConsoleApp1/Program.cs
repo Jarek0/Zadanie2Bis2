@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using ConsoleApp1.Equations;
 using ConsoleApp1.Io;
 
@@ -17,10 +17,11 @@ namespace ConsoleApp1
                 {
                     Console.WriteLine(
                         "Algorytm rozwiazuje równanie postaci a*x^2 + b*x + c = 0 dla zadanego a, b i c w zbiorze liczb rzeczywistych");
-                    var equation = equationAssembler.Assemble();
+                    var equation = equationAssembler.AssembleUsingParamConstructor();
                     Console.WriteLine($"Równanie po podaniu parametrów a, b i c ma postać {equation}");
-                    Console.WriteLine(equation.Delta);
-                    var solutions = equation.Solution;
+                    var delta = new Delta(equation);
+                    Console.WriteLine(delta);
+                    var solutions = equation.FindSolutionsInRealNumbers(delta);
                     solutionPresenter.ShowSolutions(solutions);
                 }
                 catch (Exception e)
