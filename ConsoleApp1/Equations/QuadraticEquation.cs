@@ -55,6 +55,20 @@ namespace ConsoleApp1.Equations
 
             public QuadraticEquation Assemble()
             {
+                var wayOfCreation = WayOfCreationQuadraticEquation();
+                if (wayOfCreation != null && wayOfCreation.Equals(ParametrizedConstructor))
+                {
+                    return AssembleUsingParamConstructor();
+                }
+                if (wayOfCreation != null && wayOfCreation.Equals(NotParametrizedConstructor))
+                {
+                    return AssembleUsingNotParamConstructor();
+                }
+                throw new Exception("Nieprawidłowy wartość określająca sposób tworzenia równania kwadratowego");
+            }
+
+            private static string WayOfCreationQuadraticEquation()
+            {
                 for (;;)
                 {
                     try
@@ -62,13 +76,9 @@ namespace ConsoleApp1.Equations
                         Console.WriteLine("Wpisz a żeby stworzyć równanie poprzez konstruktor z parametrami");
                         Console.WriteLine("Wpisz b żeby stworzyć równanie poprzez konstruktor z parametrami");
                         string userInput = Console.ReadLine();
-                        if (userInput != null && userInput.Equals(ParametrizedConstructor))
+                        if (userInput.Equals(ParametrizedConstructor) || userInput.Equals(NotParametrizedConstructor))
                         {
-                            return AssembleUsingParamConstructor();
-                        }
-                        if (userInput != null && userInput.Equals(NotParametrizedConstructor))
-                        {
-                            return AssembleUsingNotParamConstructor();
+                            return userInput;
                         }
                         throw new Exception("Nieprawidłowy wartość określająca sposób tworzenia równania kwadratowego");
                     }
